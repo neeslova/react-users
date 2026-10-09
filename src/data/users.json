@@ -1,0 +1,507 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "firstName": "Елена",
+      "lastName": "Смирнова",
+      "maidenName": "Кузнецова",
+      "age": 28,
+      "gender": "female",
+      "email": "esmirnova@example.ru",
+      "phone": "+7 915 431-30-24",
+      "username": "esmirnova",
+      "birthDate": "1998-5-30",
+      "image": "https://dummyjson.com/icon/esmirnova/128",
+      "university": "МГУ им. М.В. Ломоносова",
+      "address": {
+        "city": "Москва",
+        "state": "Москва",
+        "country": "Россия"
+      },
+      "company": {
+        "name": "ООО «Техносфера»",
+        "title": "Менеджер по продажам",
+        "department": "Продажи"
+      },
+      "role": "admin"
+    },
+    {
+      "id": 2,
+      "firstName": "Михаил",
+      "lastName": "Волков",
+      "maidenName": "",
+      "age": 35,
+      "gender": "male",
+      "email": "mvolkov@example.ru",
+      "phone": "+7 921 627-66-44",
+      "username": "mvolkov",
+      "birthDate": "1991-8-10",
+      "image": "https://dummyjson.com/icon/mvolkov/128",
+      "university": "СПбГУ",
+      "address": {
+        "city": "Санкт-Петербург",
+        "state": "Санкт-Петербург",
+        "country": "Россия"
+      },
+      "company": {
+        "name": "АО «Северный код»",
+        "title": "Специалист поддержки",
+        "department": "Поддержка"
+      },
+      "role": "admin"
+    },
+    {
+      "id": 3,
+      "firstName": "Ольга",
+      "lastName": "Морозова",
+      "maidenName": "",
+      "age": 42,
+      "gender": "female",
+      "email": "omorozova@example.ru",
+      "phone": "+7 831 652-27-85",
+      "username": "omorozova",
+      "birthDate": "1984-11-6",
+      "image": "https://dummyjson.com/icon/omorozova/128",
+      "university": "НГТУ им. Р.Е. Алексеева",
+      "address": {
+        "city": "Нижний Новгород",
+        "state": "Нижегородская область",
+        "country": "Россия"
+      },
+      "company": {
+        "name": "ООО «Волга-Софт»",
+        "title": "Главный бухгалтер",
+        "department": "Бухгалтерия"
+      },
+      "role": "admin"
+    },
+    {
+      "id": 4,
+      "firstName": "Дмитрий",
+      "lastName": "Соколов",
+      "maidenName": "",
+      "age": 45,
+      "gender": "male",
+      "email": "dsokolov@example.ru",
+      "phone": "+7 843 958-93-64",
+      "username": "dsokolov",
+      "birthDate": "1981-5-4",
+      "image": "https://dummyjson.com/icon/dsokolov/128",
+      "university": "КФУ",
+      "address": {
+        "city": "Казань",
+        "state": "Республика Татарстан",
+        "country": "Россия"
+      },
+      "company": {
+        "name": "ООО «КамаТех»",
+        "title": "Аналитик",
+        "department": "Аналитика"
+      },
+      "role": "moderator"
+    },
+    {
+      "id": 5,
+      "firstName": "Анастасия",
+      "lastName": "Попова",
+      "maidenName": "Лебедева",
+      "age": 30,
+      "gender": "female",
+      "email": "apopova@example.ru",
+      "phone": "+7 343 776-16-14",
+      "username": "apopova",
+      "birthDate": "1996-6-13",
+      "image": "https://dummyjson.com/icon/apopova/128",
+      "university": "УрФУ",
+      "address": {
+        "city": "Екатеринбург",
+        "state": "Свердловская область",
+        "country": "Россия"
+      },
+      "company": {
+        "name": "ООО «Уралсистемы»",
+        "title": "Маркетолог",
+        "department": "Маркетинг"
+      },
+      "role": "moderator"
+    },
+    {
+      "id": 6,
+      "firstName": "Полина",
+      "lastName": "Новикова",
+      "maidenName": "",
+      "age": 22,
+      "gender": "female",
+      "email": "pnovikova@example.ru",
+      "phone": "+7 383 295-64-48",
+      "username": "pnovikova",
+      "birthDate": "2004-4-20",
+      "image": "https://dummyjson.com/icon/pnovikova/128",
+      "university": "НГУ",
+      "address": {
+        "city": "Новосибирск",
+        "state": "Новосибирская область",
+        "country": "Россия"
+      },
+      "company": {
+        "name": "ООО «Сибирские решения»",
+        "title": "Веб-разработчик",
+        "department": "Разработка"
+      },
+      "role": "moderator"
+    },
+    {
+      "id": 7,
+      "firstName": "Александр",
+      "lastName": "Фёдоров",
+      "maidenName": "",
+      "age": 38,
+      "gender": "male",
+      "email": "afedorov@example.ru",
+      "phone": "+7 846 824-49-86",
+      "username": "afedorov",
+      "birthDate": "1988-10-20",
+      "image": "https://dummyjson.com/icon/afedorov/128",
+      "university": "Самарский университет",
+      "address": {
+        "city": "Самара",
+        "state": "Самарская область",
+        "country": "Россия"
+      },
+      "company": {
+        "name": "ООО «ВолгаДата»",
+        "title": "Продакт-менеджер",
+        "department": "Продукт"
+      },
+      "role": "user"
+    },
+    {
+      "id": 8,
+      "firstName": "Виктория",
+      "lastName": "Павлова",
+      "maidenName": "",
+      "age": 27,
+      "gender": "female",
+      "email": "vpavlova@example.ru",
+      "phone": "+7 922 853-78-77",
+      "username": "vpavlova",
+      "birthDate": "1999-8-25",
+      "image": "https://dummyjson.com/icon/vpavlova/128",
+      "university": "ПНИПУ",
+      "address": {
+        "city": "Пермь",
+        "state": "Пермский край",
+        "country": "Россия"
+      },
+      "company": {
+        "name": "ООО «Пермь Диджитал»",
+        "title": "Тестировщик",
+        "department": "Тестирование"
+      },
+      "role": "user"
+    },
+    {
+      "id": 9,
+      "firstName": "Артём",
+      "lastName": "Козлов",
+      "maidenName": "",
+      "age": 33,
+      "gender": "male",
+      "email": "akozlov@example.ru",
+      "phone": "+7 912 608-50-81",
+      "username": "akozlov",
+      "birthDate": "1993-2-12",
+      "image": "https://dummyjson.com/icon/akozlov/128",
+      "university": "ЯрГУ им. П.Г. Демидова",
+      "address": {
+        "city": "Ярославль",
+        "state": "Ярославская область",
+        "country": "Россия"
+      },
+      "company": {
+        "name": "АО «Верхневолжские системы»",
+        "title": "Программист",
+        "department": "Разработка"
+      },
+      "role": "user"
+    },
+    {
+      "id": 10,
+      "firstName": "Мария",
+      "lastName": "Орлова",
+      "maidenName": "Белова",
+      "age": 31,
+      "gender": "female",
+      "email": "morlova@example.ru",
+      "phone": "+7 930 658-48-85",
+      "username": "morlova",
+      "birthDate": "1995-6-10",
+      "image": "https://dummyjson.com/icon/morlova/128",
+      "university": "ННГУ им. Н.И. Лобачевского",
+      "address": {
+        "city": "Нижний Новгород",
+        "state": "Нижегородская область",
+        "country": "Россия"
+      },
+      "company": {
+        "name": "ООО «Волга-Софт»",
+        "title": "UX-дизайнер",
+        "department": "Дизайн"
+      },
+      "role": "user"
+    },
+    {
+      "id": 11,
+      "firstName": "Иван",
+      "lastName": "Петров",
+      "maidenName": "",
+      "age": 29,
+      "gender": "male",
+      "email": "ipetrov@example.ru",
+      "phone": "+7 495 217-62-01",
+      "username": "ipetrov",
+      "birthDate": "1997-6-6",
+      "image": "https://dummyjson.com/icon/ipetrov/128",
+      "university": "НИУ ВШЭ",
+      "address": {
+        "city": "Москва",
+        "state": "Москва",
+        "country": "Россия"
+      },
+      "company": {
+        "name": "ООО «Техносфера»",
+        "title": "Аналитик данных",
+        "department": "Аналитика"
+      },
+      "role": "user"
+    },
+    {
+      "id": 12,
+      "firstName": "Софья",
+      "lastName": "Васильева",
+      "maidenName": "",
+      "age": 24,
+      "gender": "female",
+      "email": "svasileva@example.ru",
+      "phone": "+7 812 461-84-03",
+      "username": "svasileva",
+      "birthDate": "2002-8-11",
+      "image": "https://dummyjson.com/icon/svasileva/128",
+      "university": "ИТМО",
+      "address": {
+        "city": "Санкт-Петербург",
+        "state": "Санкт-Петербург",
+        "country": "Россия"
+      },
+      "company": {
+        "name": "АО «Северный код»",
+        "title": "HR-специалист",
+        "department": "Кадры"
+      },
+      "role": "user"
+    },
+    {
+      "id": 13,
+      "firstName": "Николай",
+      "lastName": "Егоров",
+      "maidenName": "",
+      "age": 40,
+      "gender": "male",
+      "email": "negorov@example.ru",
+      "phone": "+7 863 605-69-68",
+      "username": "negorov",
+      "birthDate": "1986-6-5",
+      "image": "https://dummyjson.com/icon/negorov/128",
+      "university": "ЮФУ",
+      "address": {
+        "city": "Ростов-на-Дону",
+        "state": "Ростовская область",
+        "country": "Россия"
+      },
+      "company": {
+        "name": "ООО «ДонИнвест»",
+        "title": "Бизнес-аналитик",
+        "department": "Развитие бизнеса"
+      },
+      "role": "moderator"
+    },
+    {
+      "id": 14,
+      "firstName": "Екатерина",
+      "lastName": "Медведева",
+      "maidenName": "Зайцева",
+      "age": 36,
+      "gender": "female",
+      "email": "emedvedeva@example.ru",
+      "phone": "+7 916 678-91-87",
+      "username": "emedvedeva",
+      "birthDate": "1990-6-8",
+      "image": "https://dummyjson.com/icon/emedvedeva/128",
+      "university": "МГЮА им. О.Е. Кутафина",
+      "address": {
+        "city": "Москва",
+        "state": "Москва",
+        "country": "Россия"
+      },
+      "company": {
+        "name": "ООО «Правовой стандарт»",
+        "title": "Юрист",
+        "department": "Юридический отдел"
+      },
+      "role": "user"
+    },
+    {
+      "id": 15,
+      "firstName": "Сергей",
+      "lastName": "Никитин",
+      "maidenName": "",
+      "age": 32,
+      "gender": "male",
+      "email": "snikitin@example.ru",
+      "phone": "+7 961 511-14-34",
+      "username": "snikitin",
+      "birthDate": "1994-3-27",
+      "image": "https://dummyjson.com/icon/snikitin/128",
+      "university": "ВГУ",
+      "address": {
+        "city": "Воронеж",
+        "state": "Воронежская область",
+        "country": "Россия"
+      },
+      "company": {
+        "name": "ООО «Черноземье ИТ»",
+        "title": "DevOps-инженер",
+        "department": "Разработка"
+      },
+      "role": "user"
+    },
+    {
+      "id": 16,
+      "firstName": "Дарья",
+      "lastName": "Захарова",
+      "maidenName": "",
+      "age": 25,
+      "gender": "female",
+      "email": "dzakharova@example.ru",
+      "phone": "+7 920 431-34-57",
+      "username": "dzakharova",
+      "birthDate": "2001-8-11",
+      "image": "https://dummyjson.com/icon/dzakharova/128",
+      "university": "ВлГУ",
+      "address": {
+        "city": "Владимир",
+        "state": "Владимирская область",
+        "country": "Россия"
+      },
+      "company": {
+        "name": "ООО «Медиаград»",
+        "title": "Копирайтер",
+        "department": "Маркетинг"
+      },
+      "role": "user"
+    },
+    {
+      "id": 17,
+      "firstName": "Татьяна",
+      "lastName": "Борисова",
+      "maidenName": "",
+      "age": 37,
+      "gender": "female",
+      "email": "tborisova@example.ru",
+      "phone": "+7 917 880-68-71",
+      "username": "tborisova",
+      "birthDate": "1989-4-12",
+      "image": "https://dummyjson.com/icon/tborisova/128",
+      "university": "УУНиТ",
+      "address": {
+        "city": "Уфа",
+        "state": "Республика Башкортостан",
+        "country": "Россия"
+      },
+      "company": {
+        "name": "ООО «УфаПроект»",
+        "title": "Руководитель проектов",
+        "department": "Продукт"
+      },
+      "role": "user"
+    },
+    {
+      "id": 18,
+      "firstName": "Андрей",
+      "lastName": "Тихонов",
+      "maidenName": "",
+      "age": 31,
+      "gender": "male",
+      "email": "atikhonov@example.ru",
+      "phone": "+7 913 434-87-33",
+      "username": "atikhonov",
+      "birthDate": "1995-3-14",
+      "image": "https://dummyjson.com/icon/atikhonov/128",
+      "university": "ТУСУР",
+      "address": {
+        "city": "Томск",
+        "state": "Томская область",
+        "country": "Россия"
+      },
+      "company": {
+        "name": "АО «Сибирский щит»",
+        "title": "Специалист по безопасности",
+        "department": "Безопасность"
+      },
+      "role": "moderator"
+    },
+    {
+      "id": 19,
+      "firstName": "Алина",
+      "lastName": "Карпова",
+      "maidenName": "",
+      "age": 28,
+      "gender": "female",
+      "email": "akarpova@example.ru",
+      "phone": "+7 908 363-78-06",
+      "username": "akarpova",
+      "birthDate": "1998-10-11",
+      "image": "https://dummyjson.com/icon/akarpova/128",
+      "university": "КубГУ",
+      "address": {
+        "city": "Краснодар",
+        "state": "Краснодарский край",
+        "country": "Россия"
+      },
+      "company": {
+        "name": "ООО «ЮгКадры»",
+        "title": "Рекрутер",
+        "department": "Кадры"
+      },
+      "role": "user"
+    },
+    {
+      "id": 20,
+      "firstName": "Максим",
+      "lastName": "Белов",
+      "maidenName": "",
+      "age": 34,
+      "gender": "male",
+      "email": "mbelov@example.ru",
+      "phone": "+7 902 700-19-78",
+      "username": "mbelov",
+      "birthDate": "1992-1-21",
+      "image": "https://dummyjson.com/icon/mbelov/128",
+      "university": "НГТУ им. Р.Е. Алексеева",
+      "address": {
+        "city": "Нижний Новгород",
+        "state": "Нижегородская область",
+        "country": "Россия"
+      },
+      "company": {
+        "name": "ООО «Волга-Софт»",
+        "title": "Фронтенд-разработчик",
+        "department": "Разработка"
+      },
+      "role": "user"
+    }
+  ],
+  "total": 20,
+  "skip": 0,
+  "limit": 20
+}
