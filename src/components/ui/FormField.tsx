@@ -1,4 +1,4 @@
-import type { Ref } from 'react';
+import { useId, type Ref } from 'react';
 
 interface BaseFieldProps {
   label: string;
@@ -16,25 +16,46 @@ interface TextFieldProps extends BaseFieldProps {
   ref?: Ref<HTMLInputElement>;
 }
 
-/** Контролируемое поле ввода: значение приходит сверху, изменения уходят наверх через onChange. */
-export function TextField({ label, error, required, value, onChange, type = 'text', ref, ...rest }: TextFieldProps) {
+/** Подпись связана с полем через htmlFor/id (useId), текст ошибки — через aria-describedby */
+function FieldLabel({ htmlFor, label, required }: { htmlFor: string; label: string; required?: boolean }) {
   return (
-    <fieldset className="fieldset py-1">
-      <legend className="fieldset-legend">
-        {label}
-        {required && <span className="text-error">*</span>}
-      </legend>
+    <label htmlFor={htmlFor} className="fieldset-legend">
+      {label}
+      {required && (
+        <span className="text-error" aria-hidden>
+          *
+        </span>
+      )}
+    </label>
+  );
+}
+
+/** Контролируемое поле ввода: значение приходит сверху, изменения уходят наверх через onChange */
+export function TextField({ label, error, required, value, onChange, type = 'text', ref, ...rest }: TextFieldProps) {
+  const id = useId();
+  const errorId = `${id}-error`;
+
+  return (
+    <div className="fieldset py-1">
+      <FieldLabel htmlFor={id} label={label} required={required} />
       <input
+        id={id}
         ref={ref}
         type={type}
         className={`input w-full ${error ? 'input-error' : ''}`}
         value={value}
-        onChange={(e) => onChange(e.target.value)}
+        onChange={(event) => onChange(event.target.value)}
+        aria-required={required}
         aria-invalid={Boolean(error)}
+        aria-describedby={error ? errorId : undefined}
         {...rest}
       />
-      {error && <p className="label text-error">{error}</p>}
-    </fieldset>
+      {error && (
+        <p id={errorId} className="label text-error">
+          {error}
+        </p>
+      )}
+    </div>
   );
 }
 
@@ -45,18 +66,25 @@ interface SelectFieldProps<T extends string> extends BaseFieldProps {
   getLabel: (option: T) => string;
 }
 
-/** Обобщённый (generic) select: тип значения T выводится из options. */
+/** Обобщённый (generic) select: тип значения T выводится из options */
 export function SelectField<T extends string>({ label, value, onChange, options, getLabel }: SelectFieldProps<T>) {
+  const id = useId();
+
   return (
-    <fieldset className="fieldset py-1">
-      <legend className="fieldset-legend">{label}</legend>
-      <select className="select w-full" value={value} onChange={(e) => onChange(e.target.value as T)}>
+    <div className="fieldset py-1">
+      <FieldLabel htmlFor={id} label={label} />
+      <select
+        id={id}
+        className="select w-full"
+        value={value}
+        onChange={(event) => onChange(event.target.value as T)}
+      >
         {options.map((option) => (
           <option key={option} value={option}>
             {getLabel(option)}
           </option>
         ))}
       </select>
-    </fieldset>
+    </div>
   );
 }

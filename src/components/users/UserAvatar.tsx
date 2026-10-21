@@ -1,6 +1,9 @@
+'use client';
+
+import Image from 'next/image';
 import { useState } from 'react';
-import type { User } from '../../types/user';
-import { getInitials } from '../../utils/format';
+import type { User } from '@/types/user';
+import { getInitials } from '@/utils/format';
 
 const PLACEHOLDER_COLORS = [
   'bg-primary text-primary-content',
@@ -10,24 +13,31 @@ const PLACEHOLDER_COLORS = [
   'bg-success text-success-content',
 ];
 
+const SIZES = {
+  md: { px: 48, box: 'w-12', text: '' },
+  lg: { px: 96, box: 'w-24', text: 'text-3xl' },
+} as const;
+
 interface UserAvatarProps {
   user: Pick<User, 'id' | 'firstName' | 'lastName' | 'image'>;
+  size?: keyof typeof SIZES;
 }
 
 /**
- * Аватар с запасным вариантом: если картинки нет или она не загрузилась
- * (onError), показываются инициалы. Это условный рендеринг по локальному состоянию.
+ * Client Component из-за состояния: если картинка не загрузилась (onError),
+ * показываются инициалы. next/image отдаёт картинку через оптимизатор Next.js
+ * (нужный размер и формат), домен разрешён в next.config.ts.
  */
-export function UserAvatar({ user }: UserAvatarProps) {
+export function UserAvatar({ user, size = 'md' }: UserAvatarProps) {
   const [failed, setFailed] = useState(false);
-  const initials = getInitials(user.firstName, user.lastName);
+  const { px, box, text } = SIZES[size];
 
   if (!user.image || failed) {
-    const color = PLACEHOLDER_COLORS[user.id % PLACEHOLDER_COLORS.length];
+    const color = PLACEHOLDER_COLORS[Math.abs(user.id) % PLACEHOLDER_COLORS.length];
     return (
       <div className="avatar avatar-placeholder">
-        <div className={`w-12 rounded-full ${color}`}>
-          <span className="font-semibold">{initials}</span>
+        <div className={`${box} rounded-full ${color}`}>
+          <span className={`font-semibold ${text}`}>{getInitials(user.firstName, user.lastName)}</span>
         </div>
       </div>
     );
@@ -35,8 +45,8 @@ export function UserAvatar({ user }: UserAvatarProps) {
 
   return (
     <div className="avatar">
-      <div className="w-12 rounded-full bg-base-200">
-        <img src={user.image} alt={initials} loading="lazy" onError={() => setFailed(true)} />
+      <div className={`${box} rounded-full bg-base-200`}>
+        <Image src={user.image} alt="" width={px} height={px} onError={() => setFailed(true)} />
       </div>
     </div>
   );

@@ -11,7 +11,7 @@ interface ConfirmDialogProps {
   onCancel: () => void;
 }
 
-/** Универсальное окно подтверждения (композиция поверх Modal). */
+/** Универсальное окно подтверждения (композиция поверх Modal) */
 export function ConfirmDialog({
   open,
   title,

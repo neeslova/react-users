@@ -1,0 +1,11 @@
+@import 'tailwindcss';
+@plugin 'daisyui' {
+  themes: corporate --default, business --prefersdark;
+}
+
+/* dark: — для тёмной темы DaisyUI. Атрибут data-theme до гидратации ставит скрипт в layout */
+@custom-variant dark (&:where([data-theme='business'], [data-theme='business'] *));
+
+@theme inline {
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+}

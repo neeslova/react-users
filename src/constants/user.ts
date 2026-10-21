@@ -1,4 +1,4 @@
-import type { Gender, UserRole } from '../types/user';
+import type { Gender, SortField, SortOrder, UserFilters, UserRole } from '@/types/user';
 
 export const ROLE_LABELS: Record<UserRole, string> = {
   admin: 'Администратор',
@@ -24,10 +24,27 @@ export const GENDER_LABELS: Record<Gender, string> = {
   female: 'Женский',
 };
 
-export const ROLES = Object.keys(ROLE_LABELS) as UserRole[];
-export const GENDERS = Object.keys(GENDER_LABELS) as Gender[];
+export const SORT_LABELS: Record<SortField, string> = {
+  id: 'По дате добавления',
+  name: 'По имени',
+  age: 'По возрасту',
+};
 
-export const STORAGE_KEYS = {
-  users: 'users-lab:users-v2', // v2 — русифицированные данные (старые сохранения игнорируются)
-  theme: 'users-lab:theme',
-} as const;
+export const ROLES = ['admin', 'moderator', 'user'] as const satisfies readonly UserRole[];
+export const GENDERS = ['female', 'male'] as const satisfies readonly Gender[];
+export const SORT_FIELDS = ['id', 'name', 'age'] as const satisfies readonly SortField[];
+export const SORT_ORDERS = ['asc', 'desc'] as const satisfies readonly SortOrder[];
+
+export const DEFAULT_FILTERS: UserFilters = {
+  q: '',
+  role: 'all',
+  sort: 'id',
+  order: 'desc', // новые пользователи — сверху (как в ЛР1)
+};
+
+/** Размер страницы для limit/skip-пагинации */
+export const USERS_PAGE_SIZE = 12;
+
+export const SEARCH_DEBOUNCE_MS = 400;
+
+export const THEME_STORAGE_KEY = 'users-lab:theme';

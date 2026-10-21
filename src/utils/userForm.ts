@@ -1,8 +1,10 @@
-import type { Gender, User, UserDraft, UserRole } from '../types/user';
+import type { UserInput, UserInputField } from '@/schemas/user';
+import type { Gender, User, UserRole } from '@/types/user';
+import { toInputDate } from './format';
 
 /**
  * Плоская модель формы: все поля — строки, как их отдают <input>.
- * В модель User они превращаются только при отправке (toUserDraft).
+ * Проверяет и приводит типы (age → number) схема userInputSchema.
  */
 export interface UserFormValues {
   firstName: string;
@@ -21,7 +23,7 @@ export interface UserFormValues {
   country: string;
 }
 
-export type UserFormErrors = Partial<Record<keyof UserFormValues, string>>;
+export type UserFormErrors = Partial<Record<UserInputField, string>>;
 
 export const EMPTY_FORM: UserFormValues = {
   firstName: '',
@@ -38,13 +40,6 @@ export const EMPTY_FORM: UserFormValues = {
   department: '',
   city: '',
   country: '',
-};
-
-/** dummyjson хранит дату как "1996-5-30", а <input type="date"> ждёт "1996-05-30" */
-const toInputDate = (date: string) => {
-  const [y, m, d] = date.split('-');
-  if (!y || !m || !d) return '';
-  return `${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
 };
 
 export const toFormValues = (user?: User | null): UserFormValues =>
@@ -67,52 +62,22 @@ export const toFormValues = (user?: User | null): UserFormValues =>
       }
     : EMPTY_FORM;
 
-/** Собирает объект для «отправки на сервер». Поля, которых нет в форме, берутся из base. */
-export const toUserDraft = (values: UserFormValues, base?: User | null): UserDraft => ({
-  maidenName: base?.maidenName ?? '',
-  university: base?.university ?? '',
-  image: base?.image ?? `https://dummyjson.com/icon/${values.username.trim()}/128`,
-  firstName: values.firstName.trim(),
-  lastName: values.lastName.trim(),
-  username: values.username.trim(),
-  email: values.email.trim(),
-  phone: values.phone.trim(),
-  age: Number(values.age),
-  gender: values.gender,
-  role: values.role,
-  birthDate: values.birthDate,
+/** Применяет проверенные данные формы к записи (поля, которых нет в форме, остаются как были) */
+export const applyUserInput = (base: User, input: UserInput): User => ({
+  ...base,
+  firstName: input.firstName,
+  lastName: input.lastName,
+  username: input.username,
+  email: input.email,
+  phone: input.phone,
+  age: input.age,
+  gender: input.gender,
+  role: input.role,
+  birthDate: input.birthDate,
   company: {
-    name: values.companyName.trim(),
-    title: values.companyTitle.trim(),
-    department: values.department.trim(),
+    name: input.companyName,
+    title: input.companyTitle,
+    department: input.department,
   },
-  address: {
-    city: values.city.trim(),
-    state: base?.address.state ?? '',
-    country: values.country.trim(),
-  },
+  address: { ...base.address, city: input.city, country: input.country },
 });
-
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const USERNAME_RE = /^[a-z0-9._-]{3,20}$/i;
-
-/**
- * @param takenUsernames логины других пользователей — username должен быть уникальным
- */
-export function validateUserForm(
-  values: UserFormValues,
-  takenUsernames: ReadonlySet<string> = new Set(),
-): UserFormErrors {
-  const errors: UserFormErrors = {};
-  const username = values.username.trim().toLowerCase();
-  if (!values.firstName.trim()) errors.firstName = 'Введите имя';
-  if (!values.lastName.trim()) errors.lastName = 'Введите фамилию';
-  if (!USERNAME_RE.test(username))
-    errors.username = 'Латиница, цифры, . _ - (от 3 до 20 символов)';
-  else if (takenUsernames.has(username)) errors.username = 'Такой логин уже занят';
-  if (!EMAIL_RE.test(values.email.trim())) errors.email = 'Некорректный email';
-  const age = Number(values.age);
-  if (!values.age || !Number.isInteger(age) || age < 1 || age > 120)
-    errors.age = 'Возраст от 1 до 120';
-  return errors;
-}

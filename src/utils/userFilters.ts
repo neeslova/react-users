@@ -1,59 +1,47 @@
-import type { User, UserRole } from '../types/user';
-
-export type SortField = 'id' | 'name' | 'age';
-export type SortOrder = 'asc' | 'desc';
-
-export interface UserFilters {
-  query: string;
-  role: UserRole | 'all';
-  sortBy: SortField;
-  order: SortOrder;
-}
-
-export const DEFAULT_FILTERS: UserFilters = {
-  query: '',
-  role: 'all',
-  sortBy: 'id',
-  order: 'desc', // новые пользователи — сверху
-};
+import { DEFAULT_FILTERS } from '@/constants/user';
+import type { User, UserFilters, UsersQuery } from '@/types/user';
 
 export const getFullName = (user: Pick<User, 'firstName' | 'lastName'>) =>
   `${user.firstName} ${user.lastName}`.trim();
 
-/** Поиск по имени, логину, email и компании (аналог GET /users/search?q=) */
-const matchesQuery = (user: User, query: string) => {
-  const q = query.trim().toLowerCase();
+/**
+ * Повторяет логику GET /users/search?q= у DummyJSON: подстрока без учёта
+ * регистра в имени, фамилии, логине или email. Нужна для записей, которые
+ * изменены или созданы локально: сервер о них не знает, поэтому решать,
+ * попадают ли они в выдачу, приходится на клиенте.
+ */
+export function matchesFilters(user: User, filters: Pick<UserFilters, 'q' | 'role'>) {
+  if (filters.role !== 'all' && user.role !== filters.role) return false;
+  const q = filters.q.trim().toLowerCase();
   if (!q) return true;
-  return [getFullName(user), user.username, user.email, user.company.name]
-    .some((field) => field.toLowerCase().includes(q));
-};
+  return [user.firstName, user.lastName, user.username, user.email].some((field) =>
+    field.toLowerCase().includes(q),
+  );
+}
 
-const compare = (a: User, b: User, sortBy: SortField) => {
-  switch (sortBy) {
-    case 'name':
-      return getFullName(a).localeCompare(getFullName(b), 'ru');
-    case 'age':
-      return a.age - b.age;
-    default:
-      return a.id - b.id;
+export const hasActiveFilters = (filters: UserFilters) => filters.q !== '' || filters.role !== 'all';
+
+export const isSameFilters = (a: UserFilters, b: UserFilters) =>
+  a.q === b.q && a.role === b.role && a.sort === b.sort && a.order === b.order;
+
+/** Фильтры → query string. Значения по умолчанию не пишутся, чтобы URL оставался коротким */
+export function filtersToSearchParams(filters: UserFilters) {
+  const params = new URLSearchParams();
+  for (const key of ['q', 'role', 'sort', 'order'] as const) {
+    if (filters[key] !== DEFAULT_FILTERS[key]) params.set(key, filters[key]);
   }
-};
-
-/** Чистая функция: не мутирует исходный массив, возвращает новый. */
-export function filterUsers(users: User[], filters: UserFilters): User[] {
-  const direction = filters.order === 'asc' ? 1 : -1;
-  return users
-    .filter((user) => filters.role === 'all' || user.role === filters.role)
-    .filter((user) => matchesQuery(user, filters.query))
-    .sort((a, b) => compare(a, b, filters.sortBy) * direction);
+  return params;
 }
 
-/** Количество пользователей по ролям — для счётчиков на вкладках */
-export function countByRole(users: User[]): Record<UserRole | 'all', number> {
-  const counts = { all: users.length, admin: 0, moderator: 0, user: 0 };
-  for (const user of users) counts[user.role] += 1;
-  return counts;
-}
-
-export const hasActiveFilters =(filters: UserFilters) =>
-  filters.query.trim() !== '' || filters.role !== 'all';
+/**
+ * Объект запроса с фиксированным порядком ключей. Аргументы функций с 'use cache'
+ * сериализуются в ключ кэша, поэтому одинаковые запросы должны выглядеть одинаково.
+ */
+export const toUsersQuery = (filters: UserFilters, skip: number, limit: number): UsersQuery => ({
+  q: filters.q,
+  role: filters.role,
+  sort: filters.sort,
+  order: filters.order,
+  skip,
+  limit,
+});

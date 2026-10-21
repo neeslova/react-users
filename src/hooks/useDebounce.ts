@@ -1,17 +1,31 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef } from 'react';
 
 /**
- * Возвращает значение, которое обновляется только после паузы в delay мс.
- * Каждое новое value перезапускает таймер: функция очистки useEffect
- * отменяет предыдущий setTimeout.
+ * Отложенный вызов: callback выполнится через delay мс после последнего вызова.
+ * Каждый новый вызов перезапускает таймер. Работает от событий (onChange),
+ * а не от эффекта, поэтому нет цепочки «state → эффект → новый state».
  */
-export function useDebounce<T>(value: T, delay = 300): T {
-  const [debounced, setDebounced] = useState(value);
+export function useDebouncedCallback<A extends unknown[]>(callback: (...args: A) => void, delay: number) {
+  const callbackRef = useRef(callback);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
-  useEffect(() => {
-    const timer = setTimeout(() => setDebounced(value), delay);
-    return () => clearTimeout(timer);
-  }, [value, delay]);
+  // Таймер всегда вызывает свежий callback, даже если тот изменился после запуска
+  useLayoutEffect(() => {
+    callbackRef.current = callback;
+  });
 
-  return debounced;
+  const cancel = useCallback(() => clearTimeout(timerRef.current), []);
+
+  // Отмена при размонтировании
+  useEffect(() => cancel, [cancel]);
+
+  const debounced = useCallback(
+    (...args: A) => {
+      clearTimeout(timerRef.current);
+      timerRef.current = setTimeout(() => callbackRef.current(...args), delay);
+    },
+    [delay],
+  );
+
+  return [debounced, cancel] as const;
 }
