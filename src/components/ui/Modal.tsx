@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, type ReactNode } from 'react';
+import { useEffect, useId, useRef, type ReactNode } from 'react';
 import { X } from 'lucide-react';
 
 interface ModalProps {
@@ -21,6 +21,7 @@ interface ModalProps {
  */
 export function Modal({ open, title, onClose, children, wide = false, dismissible = true }: ModalProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
+  const titleId = useId();
 
   useEffect(() => {
     const dialog = dialogRef.current;
@@ -33,6 +34,7 @@ export function Modal({ open, title, onClose, children, wide = false, dismissibl
     <dialog
       ref={dialogRef}
       className="modal modal-bottom sm:modal-middle"
+      aria-labelledby={titleId}
       onClose={onClose}
       onCancel={(event) => {
         if (!dismissible) event.preventDefault();
@@ -41,7 +43,9 @@ export function Modal({ open, title, onClose, children, wide = false, dismissibl
       <div className={`modal-box pt-0 ${wide ? 'sm:max-w-2xl' : ''}`}>
         {/* Заголовок «прилипает» к верху, когда длинная форма прокручивается */}
         <div className="sticky top-0 z-10 -mx-6 mb-2 flex items-center justify-between gap-4 bg-base-100 px-6 pt-6 pb-3">
-          <h3 className="text-lg font-bold">{title}</h3>
+          <h3 id={titleId} className="text-lg font-bold">
+            {title}
+          </h3>
           <button
             type="button"
             className="btn btn-sm btn-circle btn-ghost"

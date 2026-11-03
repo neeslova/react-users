@@ -2,11 +2,11 @@
 
 import { ArrowDownWideNarrow, ArrowUpNarrowWide, Search, X } from 'lucide-react';
 import { useState } from 'react';
-import { parseUserFilters } from '@/schemas/user';
+import { parseSortField, parseUserFilters } from '@/schemas/user';
 import { ROLE_PLURAL_LABELS, ROLES, SEARCH_DEBOUNCE_MS, SORT_FIELDS, SORT_LABELS } from '@/constants/user';
 import { useDebouncedCallback } from '@/hooks/useDebounce';
 import { useUserFilters } from '@/hooks/useUserFilters';
-import type { SortField, UserRole } from '@/types/user';
+import type { UserRole } from '@/types/user';
 
 const TABS: (UserRole | 'all')[] = ['all', ...ROLES];
 
@@ -81,7 +81,7 @@ export function UsersToolbar() {
           <select
             className="select join-item w-full sm:w-52"
             value={filters.sort}
-            onChange={(event) => setFilters({ sort: event.target.value as SortField })}
+            onChange={(event) => setFilters({ sort: parseSortField(event.target.value) })}
             aria-label="Сортировка"
           >
             {SORT_FIELDS.map((field) => (

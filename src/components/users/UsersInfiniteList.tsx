@@ -1,6 +1,7 @@
 'use client';
 
 import { CircleCheckBig, RefreshCw, SearchX, UserPlus, UserRoundX } from 'lucide-react';
+import Link from 'next/link';
 import { useCallback, useEffect, useMemo } from 'react';
 import { DEFAULT_FILTERS } from '@/constants/user';
 import { useInView } from '@/hooks/useInView';
@@ -11,6 +12,7 @@ import type { UserFilters, UsersPage } from '@/types/user';
 import { pluralize } from '@/utils/format';
 import { applyLocalChanges, getLocalStatus } from '@/utils/localChanges';
 import { filtersToSearchParams, hasActiveFilters, isSameFilters } from '@/utils/userFilters';
+import { useCan } from '../auth/ViewerProvider';
 import { EmptyState } from '../ui/EmptyState';
 import { ErrorState, getErrorMessage } from '../ui/ErrorState';
 import { UserList } from './UserList';
@@ -187,10 +189,11 @@ export function UsersInfiniteList({ initialFilters, initialPage }: UsersInfinite
 }
 
 function AddFirstUserButton() {
-  const openDialog = useUiStore((state) => state.openDialog);
+  const canCreate = useCan('users:create');
+  if (!canCreate) return null;
   return (
-    <button type="button" className="btn btn-primary" onClick={() => openDialog({ type: 'create' })}>
-      <UserPlus size={18} /> Добавить пользователя
-    </button>
+    <Link href="/users/new" className="btn btn-primary">
+      <UserPlus size={18} aria-hidden /> Добавить пользователя
+    </Link>
   );
 }

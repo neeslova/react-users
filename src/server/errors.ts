@@ -28,6 +28,6 @@ export function toErrorBody(error: unknown): { status: number; body: ApiErrorBod
 
 /** Для Server Functions: ошибка → сериализуемый результат { ok: false } */
 export function toFailure(error: unknown): Extract<MutationResult<never>, { ok: false }> {
-  const { body } = toErrorBody(error);
-  return { ok: false, ...body };
+  const { status, body } = toErrorBody(error);
+  return { ok: false, status, ...body };
 }

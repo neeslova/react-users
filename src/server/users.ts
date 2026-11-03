@@ -1,13 +1,12 @@
 import 'server-only';
 import { cacheLife, cacheTag } from 'next/cache';
 import type { z } from 'zod';
-import { ROLES } from '@/constants/user';
 import {
   toFieldErrors,
   userIdSchema,
   userInputSchema,
   userPatchSchema,
-  type UserInput,
+  type UserPatch,
 } from '@/schemas/user';
 import type {
   SortField,
@@ -20,8 +19,19 @@ import type {
   UsersStats,
   UserTodo,
 } from '@/types/user';
-import { dummyFetch } from './dummyjson';
+import { avatarUrl, dummyFetch } from './dummyjson';
+import {
+  dummyDeletedSchema,
+  dummyPostsSchema,
+  dummyRolesSchema,
+  dummyTodosSchema,
+  dummyUsernamesSchema,
+  dummyUserSchema,
+  dummyUsersListSchema,
+  type DummyUser,
+} from './dummyjsonSchemas';
 import { ServiceError } from './errors';
+import { requirePermission } from './session';
 
 /*
  * Сервисный слой предметной области — единственное место с бизнес-логикой.
@@ -29,8 +39,8 @@ import { ServiceError } from './errors';
  *  - Server Components (чтение данных для страниц);
  *  - Route Handlers  (src/app/api/users/**) — HTTP API;
  *  - Server Functions (src/app/users/actions.ts) — мутации из интерфейса.
- * Валидация, проверка уникальности логина и приведение ответа DummyJSON
- * к типу User описаны здесь один раз.
+ * Проверка прав, валидация, уникальность логина и приведение ответа DummyJSON
+ * к типу User описаны здесь один раз, поэтому их нельзя обойти, выбрав другой вход.
  */
 
 // ---------- Теги кэша ----------
@@ -50,81 +60,16 @@ const USER_FIELDS = [
 
 const SORT_TO_API: Record<SortField, string> = { id: 'id', name: 'firstName', age: 'age' };
 
-interface RawUser {
-  id: number;
-  firstName?: string;
-  lastName?: string;
-  maidenName?: string;
-  age?: number | null;
-  gender?: string;
-  email?: string;
-  phone?: string;
-  username?: string;
-  birthDate?: string;
-  image?: string;
-  role?: string;
-  bloodGroup?: string;
-  height?: number | null;
-  weight?: number | null;
-  eyeColor?: string;
-  hair?: { color?: string; type?: string };
-  university?: string;
-  address?: { address?: string; city?: string; state?: string; postalCode?: string; country?: string };
-  company?: { name?: string; title?: string; department?: string };
-}
-
-interface RawUsersResponse {
-  users: RawUser[];
-  total: number;
-}
-
-const isRole = (value: unknown): value is UserRole => ROLES.includes(value as UserRole);
-
-export const avatarUrl = (username: string) =>
-  `https://dummyjson.com/icon/${encodeURIComponent(username || 'user')}/128`;
-
-/** Ответ DummyJSON → User: только нужные поля, без null/undefined в строках */
-function normalizeUser(raw: RawUser): User {
-  const username = raw.username ?? '';
-  return {
-    id: raw.id,
-    firstName: raw.firstName ?? '',
-    lastName: raw.lastName ?? '',
-    maidenName: raw.maidenName ?? '',
-    age: raw.age ?? 0,
-    gender: raw.gender === 'male' ? 'male' : 'female',
-    birthDate: raw.birthDate ?? '',
-    email: raw.email ?? '',
-    phone: raw.phone ?? '',
-    username,
-    image: raw.image || avatarUrl(username),
-    role: isRole(raw.role) ? raw.role : 'user',
-    bloodGroup: raw.bloodGroup ?? '',
-    height: raw.height ?? null,
-    weight: raw.weight ?? null,
-    eyeColor: raw.eyeColor ?? '',
-    hair: { color: raw.hair?.color ?? '', type: raw.hair?.type ?? '' },
-    university: raw.university ?? '',
-    address: {
-      address: raw.address?.address ?? '',
-      city: raw.address?.city ?? '',
-      state: raw.address?.state ?? '',
-      postalCode: raw.address?.postalCode ?? '',
-      country: raw.address?.country ?? '',
-    },
-    company: {
-      name: raw.company?.name ?? '',
-      title: raw.company?.title ?? '',
-      department: raw.company?.department ?? '',
-    },
-  };
-}
+/** Ответ DummyJSON (уже проверенный схемой) → User: у записи без картинки — аватар по логину */
+const normalizeUser = (raw: DummyUser): User => ({ ...raw, image: raw.image || avatarUrl(raw.username) });
 
 // ---------- Чтение (кэшируется директивой 'use cache') ----------
 
 /**
  * Страница списка с поиском, фильтром по роли и сортировкой.
  * Аргумент входит в ключ кэша: каждая комбинация фильтров и skip/limit кэшируется отдельно.
+ * Чтение открыто всем (и гостям), поэтому права здесь не проверяются, а в кэш
+ * не попадает ничего, что зависит от текущего пользователя.
  */
 export async function getUsersPage(query: UsersQuery): Promise<UsersPage> {
   'use cache';
@@ -147,7 +92,7 @@ export async function getUsersPage(query: UsersQuery): Promise<UsersPage> {
       ? ['/users/filter', { key: 'role', value: role }]
       : ['/users', {}];
 
-  const data = await dummyFetch<RawUsersResponse>(endpoint, {
+  const data = await dummyFetch(endpoint, dummyUsersListSchema, {
     query: { ...params, sortBy: SORT_TO_API[sort], order, limit, skip, select: USER_FIELDS },
   });
   return { users: data.users.map(normalizeUser), total: data.total, skip, limit };
@@ -159,7 +104,7 @@ async function searchAllUsers(q: string, sort: SortField, order: SortOrder): Pro
   cacheTag(USERS_TAG);
 
   // limit=0 — все совпадения одним запросом
-  const data = await dummyFetch<RawUsersResponse>('/users/search', {
+  const data = await dummyFetch('/users/search', dummyUsersListSchema, {
     query: { q, sortBy: SORT_TO_API[sort], order, limit: 0, select: USER_FIELDS },
   });
   return data.users.map(normalizeUser);
@@ -172,20 +117,11 @@ export async function getUser(id: number): Promise<User | null> {
   cacheTag(userTag(id));
 
   try {
-    return normalizeUser(await dummyFetch<RawUser>(`/users/${id}`, { query: { select: USER_FIELDS } }));
+    return normalizeUser(await dummyFetch(`/users/${id}`, dummyUserSchema, { query: { select: USER_FIELDS } }));
   } catch (error) {
     if (error instanceof ServiceError && error.status === 404) return null;
     throw error;
   }
-}
-
-interface RawPost {
-  id: number;
-  title: string;
-  body: string;
-  tags?: string[];
-  reactions?: { likes?: number; dislikes?: number };
-  views?: number;
 }
 
 export async function getUserPosts(userId: number): Promise<UserPost[]> {
@@ -193,18 +129,10 @@ export async function getUserPosts(userId: number): Promise<UserPost[]> {
   cacheLife('hours');
   cacheTag(userTag(userId));
 
-  const { posts } = await dummyFetch<{ posts: RawPost[] }>(`/users/${userId}/posts`, {
+  const { posts } = await dummyFetch(`/users/${userId}/posts`, dummyPostsSchema, {
     query: { limit: 0, select: 'title,body,tags,reactions,views' },
   });
-  return posts.map((post) => ({
-    id: post.id,
-    title: post.title,
-    body: post.body,
-    tags: post.tags ?? [],
-    likes: post.reactions?.likes ?? 0,
-    dislikes: post.reactions?.dislikes ?? 0,
-    views: post.views ?? 0,
-  }));
+  return posts.map(({ reactions, ...post }) => ({ ...post, likes: reactions.likes, dislikes: reactions.dislikes }));
 }
 
 export async function getUserTodos(userId: number): Promise<UserTodo[]> {
@@ -212,8 +140,8 @@ export async function getUserTodos(userId: number): Promise<UserTodo[]> {
   cacheLife('hours');
   cacheTag(userTag(userId));
 
-  const { todos } = await dummyFetch<{ todos: UserTodo[] }>(`/users/${userId}/todos`, { query: { limit: 0 } });
-  return todos.map(({ id, todo, completed }) => ({ id, todo, completed }));
+  const { todos } = await dummyFetch(`/users/${userId}/todos`, dummyTodosSchema, { query: { limit: 0 } });
+  return todos;
 }
 
 /**
@@ -221,16 +149,15 @@ export async function getUserTodos(userId: number): Promise<UserTodo[]> {
  * который её вызывает (кэширование на уровне UI, а не данных).
  */
 export async function getUsersStats(): Promise<UsersStats> {
-  const { users } = await dummyFetch<{ users: { role?: string }[] }>('/users', {
-    query: { limit: 0, select: 'role' },
-  });
+  const { users } = await dummyFetch('/users', dummyRolesSchema, { query: { limit: 0, select: 'role' } });
   const byRole: Record<UserRole, number> = { admin: 0, moderator: 0, user: 0 };
-  for (const { role } of users) if (isRole(role)) byRole[role] += 1;
+  for (const { role } of users) byRole[role] += 1;
   return { total: users.length, byRole };
 }
 
 // ---------- Мутации (не кэшируются) ----------
 
+/** Проверка входных данных на сервере: ошибки по полям → 422 */
 function parse<S extends z.ZodType>(schema: S, input: unknown): z.output<S> {
   const result = schema.safeParse(input);
   if (!result.success) {
@@ -247,7 +174,7 @@ function parseId(id: unknown): number {
 
 /** Бизнес-правило: логин уникален. Проверка — по данным сервера */
 async function ensureUsernameAvailable(username: string, exceptId?: number) {
-  const { users } = await dummyFetch<RawUsersResponse>('/users/filter', {
+  const { users } = await dummyFetch('/users/filter', dummyUsernamesSchema, {
     query: { key: 'username', value: username, select: 'username', limit: 1 },
   });
   if (users.some((user) => user.id !== exceptId)) {
@@ -256,7 +183,7 @@ async function ensureUsernameAvailable(username: string, exceptId?: number) {
 }
 
 /** Плоские данные формы → тело запроса DummyJSON (вложенные объекты PUT/PATCH сливает с текущими) */
-function toDummyPayload(input: Partial<UserInput>) {
+function toDummyPayload(input: UserPatch) {
   const { companyName, companyTitle, department, city, country, ...plain } = input;
   const company = { name: companyName, title: companyTitle, department };
   const address = { city, country };
@@ -266,10 +193,16 @@ function toDummyPayload(input: Partial<UserInput>) {
   return { ...plain, company: defined(company), address: defined(address) };
 }
 
+/*
+ * Порядок в каждой мутации: права (401/403) → данные (400/422) → бизнес-правила (409) → запрос.
+ * Гость не узнаёт даже о том, правильно ли он заполнил поля.
+ */
+
 export async function createUser(input: unknown): Promise<User> {
+  await requirePermission('users:create');
   const data = parse(userInputSchema, input);
   await ensureUsernameAvailable(data.username);
-  const created = await dummyFetch<RawUser>('/users/add', {
+  const created = await dummyFetch('/users/add', dummyUserSchema, {
     method: 'POST',
     body: { ...toDummyPayload(data), image: avatarUrl(data.username) },
   });
@@ -278,10 +211,11 @@ export async function createUser(input: unknown): Promise<User> {
 
 /** partial: false — PUT (все поля формы), true — PATCH (только переданные) */
 export async function updateUser(id: unknown, input: unknown, { partial = false } = {}): Promise<User> {
+  await requirePermission('users:update');
   const userId = parseId(id);
   const data = partial ? parse(userPatchSchema, input) : parse(userInputSchema, input);
   if (data.username) await ensureUsernameAvailable(data.username, userId);
-  const updated = await dummyFetch<RawUser>(`/users/${userId}`, {
+  const updated = await dummyFetch(`/users/${userId}`, dummyUserSchema, {
     method: partial ? 'PATCH' : 'PUT',
     body: toDummyPayload(data),
   });
@@ -289,7 +223,7 @@ export async function updateUser(id: unknown, input: unknown, { partial = false 
 }
 
 export async function deleteUser(id: unknown): Promise<{ id: number; deletedOn: string }> {
+  await requirePermission('users:delete');
   const userId = parseId(id);
-  const deleted = await dummyFetch<RawUser & { deletedOn?: string }>(`/users/${userId}`, { method: 'DELETE' });
-  return { id: deleted.id, deletedOn: deleted.deletedOn ?? '' };
+  return dummyFetch(`/users/${userId}`, dummyDeletedSchema, { method: 'DELETE' });
 }

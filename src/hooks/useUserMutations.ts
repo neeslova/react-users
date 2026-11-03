@@ -31,7 +31,8 @@ export function useUserMutations() {
       try {
         return await request();
       } catch {
-        return { ok: false, message: NETWORK_ERROR };
+        // status 0 — как у fetch без ответа: до сервера запрос не дошёл
+        return { ok: false, status: 0, message: NETWORK_ERROR };
       } finally {
         ui().mutationFinished();
       }

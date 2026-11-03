@@ -7,6 +7,10 @@ const nextConfig: NextConfig = {
   partialPrefetching: true,
   // Не создавать AGENTS.md с инструкциями для AI-агентов при next dev
   agentRules: false,
+  experimental: {
+    // forbidden() / unauthorized() из next/navigation: ответ 403/401 со своей страницей
+    authInterrupts: true,
+  },
   turbopack: {
     // Явный корень проекта: иначе Turbopack может принять за корень папку выше с чужим lock-файлом
     root: import.meta.dirname,

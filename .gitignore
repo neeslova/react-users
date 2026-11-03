@@ -1,6 +1,9 @@
 # dependencies
 /node_modules
 
+# testing (отчёт о покрытии: npm run coverage)
+/coverage
+
 # next.js
 /.next/
 /out/

@@ -1,11 +1,15 @@
 import Link from 'next/link';
 import { Users } from 'lucide-react';
-import { AddUserButton, LocalChangesButton, SyncIndicator } from './HeaderActions';
+import { Suspense } from 'react';
+import { LocalChangesButton, SyncIndicator } from './HeaderActions';
 import { ThemeToggle } from './ThemeToggle';
+import { UserMenu, UserMenuSkeleton } from './UserMenu';
 
 /**
  * Server Component: разметка шапки рендерится на сервере и попадает в статическую
  * оболочку. Интерактивные части — небольшие Client Components («острова»).
+ * Меню пользователя зависит от сессии, поэтому оно в своём <Suspense>:
+ * до ответа сервера на его месте скелетон, остальная шапка видна сразу.
  */
 export function Header() {
   return (
@@ -26,7 +30,9 @@ export function Header() {
         <SyncIndicator />
         <LocalChangesButton />
         <ThemeToggle />
-        <AddUserButton />
+        <Suspense fallback={<UserMenuSkeleton />}>
+          <UserMenu />
+        </Suspense>
       </div>
     </header>
   );

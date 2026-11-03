@@ -1,20 +1,9 @@
 'use client';
 
-import { RotateCcw, UserPlus } from 'lucide-react';
+import { RotateCcw } from 'lucide-react';
 import { useMemo } from 'react';
 import { useLocalChanges, useUiStore } from '@/stores/StoreProvider';
 import { countLocalChanges } from '@/utils/localChanges';
-
-export function AddUserButton() {
-  const openDialog = useUiStore((state) => state.openDialog);
-
-  return (
-    <button type="button" className="btn btn-primary" onClick={() => openDialog({ type: 'create' })}>
-      <UserPlus size={18} />
-      <span className="hidden sm:inline">Добавить</span>
-    </button>
-  );
-}
 
 /** Отправка мутаций: видно, даже когда интерфейс уже обновлён оптимистично */
 export function SyncIndicator() {

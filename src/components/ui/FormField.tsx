@@ -9,7 +9,9 @@ interface BaseFieldProps {
 interface TextFieldProps extends BaseFieldProps {
   value: string;
   onChange: (value: string) => void;
-  type?: 'text' | 'email' | 'tel' | 'number' | 'date';
+  type?: 'text' | 'email' | 'tel' | 'number' | 'date' | 'password';
+  /** Имя поля в FormData (для форм с action) */
+  name?: string;
   placeholder?: string;
   autoComplete?: string;
   /** В React 19 ref передаётся как обычный проп — forwardRef не нужен */
@@ -77,7 +79,11 @@ export function SelectField<T extends string>({ label, value, onChange, options,
         id={id}
         className="select w-full"
         value={value}
-        onChange={(event) => onChange(event.target.value as T)}
+        onChange={(event) => {
+          // Значение из DOM — просто строка: ищем его среди options вместо приведения `as T`
+          const option = options.find((item) => item === event.target.value);
+          if (option !== undefined) onChange(option);
+        }}
       >
         {options.map((option) => (
           <option key={option} value={option}>

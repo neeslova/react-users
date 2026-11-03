@@ -1,23 +1,12 @@
 'use client';
 
-import { isServer, QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { isServer, QueryClientProvider, type QueryClient } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import type { ReactNode } from 'react';
+import { makeQueryClient } from '@/api/queryClient';
+import { ViewerProvider } from '@/components/auth/ViewerProvider';
+import type { Viewer } from '@/schemas/auth';
 import { StoreProvider } from '@/stores/StoreProvider';
-
-function makeQueryClient() {
-  return new QueryClient({
-    defaultOptions: {
-      queries: {
-        // Первая страница приходит с сервера: минуту считаем её свежей и не перезапрашиваем
-        staleTime: 60_000,
-        // Повторная загрузка — по кнопке «Обновить», а не при каждом возврате на вкладку
-        refetchOnWindowFocus: false,
-        retry: 1,
-      },
-    },
-  });
-}
 
 let browserQueryClient: QueryClient | undefined;
 
@@ -28,10 +17,18 @@ function getQueryClient() {
   return browserQueryClient;
 }
 
-export function Providers({ children }: { children: ReactNode }) {
+interface ProvidersProps {
+  /** Промис текущего пользователя из корневого layout (не ожидается там, чтобы не блокировать оболочку) */
+  viewer: Promise<Viewer | null>;
+  children: ReactNode;
+}
+
+export function Providers({ viewer, children }: ProvidersProps) {
   return (
     <QueryClientProvider client={getQueryClient()}>
-      <StoreProvider>{children}</StoreProvider>
+      <ViewerProvider viewer={viewer}>
+        <StoreProvider>{children}</StoreProvider>
+      </ViewerProvider>
       {process.env.NODE_ENV === 'development' && (
         // Правее индикатора Next.js (он тоже в левом нижнем углу), чтобы кнопки не перекрывались
         <div className="fixed bottom-4 left-16 z-[9999]">

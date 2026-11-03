@@ -42,6 +42,9 @@ export const DEFAULT_FILTERS: UserFilters = {
   order: 'desc', // новые пользователи — сверху (как в ЛР1)
 };
 
+/** С какого возраста можно назначить роль «Администратор» (правило в userInputSchema) */
+export const ADULT_AGE = 18;
+
 /** Размер страницы для limit/skip-пагинации */
 export const USERS_PAGE_SIZE = 12;
 

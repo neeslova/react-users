@@ -102,3 +102,28 @@ export function SectionSkeleton({ rows = 3, title }: { rows?: number; title?: st
     </section>
   );
 }
+
+export function UserFormSkeleton() {
+  return (
+    <div role="status" aria-label="Загрузка формы" className="card border border-base-300 bg-base-100">
+      <div className="card-body gap-4" aria-hidden>
+        <div className="flex flex-col gap-2">
+          <div className="skeleton h-7 w-64" />
+          <div className="skeleton h-4 w-80 max-w-full" />
+        </div>
+        <div className="grid gap-x-4 gap-y-5 sm:grid-cols-2">
+          {Array.from({ length: 8 }, (_, index) => (
+            <div key={index} className="flex flex-col gap-2">
+              <div className="skeleton h-3 w-24" />
+              <div className="skeleton h-10 w-full" />
+            </div>
+          ))}
+        </div>
+        <div className="flex justify-end gap-2 border-t border-base-300 pt-4">
+          <div className="skeleton h-10 w-24" />
+          <div className="skeleton h-10 w-28" />
+        </div>
+      </div>
+    </div>
+  );
+}

@@ -14,6 +14,7 @@ const PLACEHOLDER_COLORS = [
 ];
 
 const SIZES = {
+  sm: { px: 32, box: 'w-8', text: 'text-xs' },
   md: { px: 48, box: 'w-12', text: '' },
   lg: { px: 96, box: 'w-24', text: 'text-3xl' },
 } as const;

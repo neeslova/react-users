@@ -14,4 +14,5 @@ export interface ApiErrorBody {
  */
 export type MutationResult<T> =
   | { ok: true; data: T }
-  | { ok: false; message: string; fieldErrors?: FieldErrors };
+  /** status — как у HTTP: 401 (не вошёл), 403 (нет прав), 422 (ошибка валидации)… */
+  | { ok: false; status: number; message: string; fieldErrors?: FieldErrors };

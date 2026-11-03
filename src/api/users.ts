@@ -1,4 +1,4 @@
-import type { ApiErrorBody } from '@/types/api';
+import { apiErrorBodySchema, usersPageSchema } from '@/schemas/user';
 import type { UserFilters, UsersPage, UsersQuery } from '@/types/user';
 import { filtersToSearchParams } from '@/utils/userFilters';
 
@@ -6,6 +6,7 @@ import { filtersToSearchParams } from '@/utils/userFilters';
  * Клиентский слой работы с API: запросы браузера к нашим Route Handler'ам
  * (не напрямую к DummyJSON) и «контракт» кэша TanStack Query —
  * ключи запросов и правило определения следующей страницы.
+ * response.json() возвращает any, поэтому ответ проверяется схемой, а не приводится через `as`.
  */
 
 export class ApiError extends Error {
@@ -32,11 +33,15 @@ export async function fetchUsersPage(query: UsersQuery, signal?: AbortSignal): P
   params.set('limit', String(query.limit));
 
   const response = await fetch(`/api/users?${params}`, { signal });
+  const json: unknown = await response.json().catch(() => null);
   if (!response.ok) {
-    const body = (await response.json().catch(() => null)) as ApiErrorBody | null;
-    throw new ApiError(body?.message ?? `Ошибка ${response.status}`, response.status);
+    const body = apiErrorBodySchema.safeParse(json);
+    throw new ApiError(body.success ? body.data.message : `Ошибка ${response.status}`, response.status);
   }
-  return response.json();
+
+  const page = usersPageSchema.safeParse(json);
+  if (!page.success) throw new ApiError('Сервер вернул данные в неожиданном формате', 502);
+  return page.data;
 }
 
 /**
